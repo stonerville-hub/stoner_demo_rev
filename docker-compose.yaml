@@ -1,21 +1,55 @@
 version: "3.8"
 services:
-    aerospikedb:
-        image: aerospike/aerospike-server:latest
-        container_name: aerospike
-        ports:
-        - 3000-3002:3000-3002
-        volumes:
-        - ./data:/opt/aerospike/data/
-    demorevcontent:
 
-      image: demorevcontent:1.0
-      container_name: demorevcontent
-      restart: always
+  demorevcontent:
+    build:
+      context: .
+      # network: revcontent_network
+      args: 
+        - environment=dev
+        - aero_host=127.0.0.1
+        - aero_port=3000
+        - aero_namespace=test
+        - aero_set=user      
+      dockerfile: Dockerfile
+    image: demorevcontent:1.0
+    ports:
+      - 8080:8080
+    # environment:
+    #   - environment=dev
+    #   - aero_host=127.0.0.1
+    #   - aero_port=3000
+    #   - aero_namespace=test
+    #   - aero_set=user
+    depends_on:
+      - aerospikedb
+    volumes:
+      - ./:/app
+    restart: always
+  aerospikedb:
+      image: aerospike/aerospike-server:latest
+      container_name: aerospike
       ports:
-        - 8080:8080
-      depends_on:
-        - aerospikedb
+      - 3000-3002:3000-3002
+      volumes:
+      - ./data:/opt/aerospike/data/
+  # demorevcontent:
+
+    # image: demorevcontent:1.0
+    # container_name: demorevcontent
+    # restart: always
+    # ports:
+    #   - 8080:8080
+    # environment:
+    #   - environment=dev
+    #   - aero_host=127.0.0.1
+    #   - aero_port=3000
+    #   - aero_namespace=test
+    #   - aero_set=user
+    # depends_on:
+    #   - aerospikedb
+    # networks:
+    #   - revcontent_network
 volumes:
   data: {}
 
