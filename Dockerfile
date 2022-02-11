@@ -1,19 +1,25 @@
-FROM golang:1.10
+# Dockerfile References: https://docs.docker.com/engine/reference/builder/
+
+# Start from the latest golang base image
+FROM golang:latest
+
+ARG environment
+ARG aero_host
+ARG aero_port
+ARG aero_namespace
+ARG aero_set
 
 # Set the Current Working Directory inside the container
-WORKDIR $GOPATH/revcontent
+WORKDIR /app
 
-# Copy everything from the current directory to the PWD(Present Working Directory) inside the container
+# Copy everything from the current directory to the Working Directory inside the container
 COPY . .
 
-# Download all the dependencies
-RUN go get -d -v ./...
+# Build the Go app
+RUN go build -o main .
 
-# Install the package
-RUN go install -v ./...
-
-# This container exposes port 8080 to the outside world
+# Expose port 8080 to the outside world
 EXPOSE 8080
 
-# Run the executable
-CMD ["revcontent"]
+# Command to run the executable
+CMD "./main" ${environment} ${aero_host} ${aero_port} ${aero_namespace} ${aero_set}

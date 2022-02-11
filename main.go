@@ -1,13 +1,21 @@
 package main
 
 import (
-	"github.com/my/repo/handler"
-	mongoCRUD "github.com/my/repo/server/mongo"
+	"github.com/gorilla/mux"
+	"net/http"
+
+	as "github.com/my/repo/server/aerospike"
 )
 
 func main() {
-	// Create a new client and connect to the server
-	mongoCRUD.CheckDBConnection()
-	mongoCRUD.InsertRecord()
-	handler.Controller()
+
+	as.CheckDBConnection()
+
+    r := mux.NewRouter()
+
+    r.HandleFunc("/user/{id}", http.HandlerFunc(as.GetRecord))
+    r.HandleFunc("/loaddata", http.HandlerFunc(as.PreloadCustomers))
+    http.Handle("/", r)
+	http.ListenAndServe(":8080", r)
+
 }
