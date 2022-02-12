@@ -11,14 +11,14 @@ We need a new microservice to return the user data stored in Aerospike. The data
 Please create a GoLang HTTP REST service with a GET `/user/<id>` endpoint. The request will accept a `?api_key=<string>` GET param and will validate the value against the Aerospike user record before returning the user record as a JSON response.
 
 This is your time to shine. Let's see all the best practices in play. A docker-compose including Aerospike, test record loading, README, etc... Publish the repository to GitHub and pass along the URL.
-# [Prerequisites](#prerequisites)
+## [Prerequisites](#prerequisites)
 
  1. _Docker is installed_
  2. _Docker compose is installed_
  3. _Image is run from your local machine_  
  
 
-# [Getting Started](#getting-started)
+## [Getting Started](#getting-started)
 
 1. run  `docker-compose up -d --force-recreate`
 2. Go to one of the following endpoints:
