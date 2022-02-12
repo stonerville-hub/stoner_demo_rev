@@ -1,4 +1,5 @@
-># Code Challenge - Microservice
+#
+# [Code Challenge - Microservice]()
 
 ## [Description](#description)
 We need a new microservice to return the user data stored in Aerospike. The data resides within the "test" namespace, "users" set, and each record has a primary key integer corresponding to the user's id in RDS. Each record contains the following bins:
