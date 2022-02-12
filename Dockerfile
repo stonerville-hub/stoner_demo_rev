@@ -9,17 +9,31 @@ ARG aero_port
 ARG aero_namespace
 ARG aero_set
 
+ENV ENVIRONMENT=${environment}
+ENV HOST=${aero_host}
+ENV PORT=${aero_port}
+ENV NAMESPACE=${aero_namespace}
+ENV SET=${aero_set}
+
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
+
+RUN mkdir /server
+RUN mkdir /utility
+
+COPY server server/
+COPY utility utility/
+COPY .env .
 # Copy everything from the current directory to the Working Directory inside the container
-COPY . .
+COPY *.go .
+COPY go.* ./
 
 # Build the Go app
-RUN go build -o main .
+RUN go build -o /main .
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
 # Command to run the executable
-CMD "./main" ${environment} ${aero_host} ${aero_port} ${aero_namespace} ${aero_set}
+CMD ["/main"]
