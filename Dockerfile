@@ -3,13 +3,11 @@
 # Start from the latest golang base image
 FROM golang:latest
 
-ARG environment
 ARG aero_host
 ARG aero_port
 ARG aero_namespace
 ARG aero_set
 
-ENV ENVIRONMENT=${environment}
 ENV HOST=${aero_host}
 ENV PORT=${aero_port}
 ENV NAMESPACE=${aero_namespace}
