@@ -1,78 +1,94 @@
 package aerospike
 
 import (
-	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	as "github.com/aerospike/aerospike-client-go/v5"
 	util "github.com/my/repo/utility"
 )
 
-var dbconfig *util.Dbconfig = util.GetConnection()
+var db *util.DBAero = util.GetConnection()
 
-func PreloadCustomers(w http.ResponseWriter, r *http.Request) {
-	WriteRecord(10)
+func HomePage(w http.ResponseWriter, r *http.Request) {
+	recordset, err := db.Client.ScanAll(nil, db.Namespace, db.Set)
+	util.PanicOnError(err)
+	WriteMessage(w, "<h3>List of Test Record(s)</h3>")
+	WriteMessage(w, "<h3>------------------------------</h3>")
+	recordsExists := false
+	// consume recordset and check errors
+	for rec := range recordset.Results() {
+		if rec.Err != nil {
+			util.PanicOnError(rec.Err)
+		}
+		WriteMessage(w, "<h4>"+util.ConvertToJson(rec.Record.Bins)+"</h4>")
+	}
+
+	if !recordsExists {
+		WriteMessage(w, "<h2>No records found.  For loading test data, click <a href="+r.RemoteAddr+">here</a></h2>")
+	}
 }
 
-func GetRecord(w http.ResponseWriter, r *http.Request) {
-	// fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
-	// pathVar := r.URL.Path[len("/user/"):]
+func LoadNewCustomers(w http.ResponseWriter, r *http.Request) {
+	for i := 0; i < 10; i++ {
+		b := insertRecord(i)
+		WriteMessage(w, util.ConvertToJson(b))
+	}
+	http.Redirect(w, r, util.HOME, http.StatusOK)
+}
+
+func GetRecordByID(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	filters, present := query[util.APIKEY] //filters=["color", "price", "brand"]
+	filters, present := query[util.APIKEY]
 	if !present || len(filters) == 0 {
-		util.LogMessage(util.APIKEY + " is not present")
+		WriteMessage(w, util.APIKEY+" is not present")
+	} else {
+		rec := readRecord(filters[0])
+		if rec == nil {
+			WriteMessage(w, "Api key "+filters[0]+" was not found")
+		} else {
+			WriteMessage(w, util.ConvertToJson(rec.Bins))
+		}
 	}
-	ReadRecord(filters[0])
-	util.LogMessage("testing URL Path=" + r.URL.Path)
 }
 
-func WriteRecord(numberOfRecords int) {
-	util.LogMessage("Generating Test Records\n\n")
-	util.LogMessage("Here are a few api_keys for testing:\n")
+func insertRecord(recnum int) as.BinMap {
+	apikey := util.GetUUID()
+	key, err := as.NewKey(db.Namespace, db.Set, apikey)
+	util.PanicOnError(err)
+	r := strconv.Itoa(recnum)
 
-	for i := 0; i < numberOfRecords; i++ {
-		// apikey := util.RandomInt64(int64(i))
-		apikey := util.GetUUID()
-		key, err := as.NewKey(dbconfig.Namespace, dbconfig.Set, apikey)
-		util.PanicOnError(err)
-		bins := as.BinMap{
-			util.APIKEY:    apikey,
-			util.FIRSTNAME: "Rev" + apikey,
-			util.LASTNAME:  "Content" + apikey,
-			util.COMPANY:   "Revcontent",
-		}
-		// var json = jsoniter.ConfigCompatibleWithStandardLibrary
-		// json.Marshal(bins)
-		// util.LogMessage("New Record created: " + bins.Bins["api_key"])
-		// write the bins
-		err = dbconfig.Client.Put(nil, key, bins)
-		util.PanicOnError(err)
-
-		rec, err := dbconfig.Client.Get(nil, key)
-		if err != nil {
-			util.PanicOnError(err)
-		}
-		fmt.Println(rec.Bins[util.APIKEY])
+	bins := as.BinMap{
+		util.APIKEY:    apikey,
+		util.FIRSTNAME: "Rev_" + r,
+		util.LASTNAME:  "Content_" + r,
+		util.COMPANY:   "Revcontent",
 	}
-
-	util.LogMessage("\nTest Records created.\n")
-}
-
-func ReadRecord(_key string) {
-	util.LogMessage("Reading record")
-	key, err := as.NewKey(dbconfig.Namespace, dbconfig.Set, _key)
+	err = db.Client.Put(nil, key, bins)
 	if err != nil {
-		// read it
-		rec, err := dbconfig.Client.Get(nil, key)
-		util.PanicOnError(err)
-		util.LogMessage("Record: " + rec.String())
+		util.LogMessage("Failed inserting api_key "+apikey)
 	}
-	util.LogMessage("\nEnd Processing\n\n")
+	return bins
+}
+
+func readRecord(_key string) *as.Record {
+	util.LogMessage("Reading record")
+	key, err := as.NewKey(db.Namespace, db.Set, _key)
+	util.PanicOnError(err)
+	rec, err := db.Client.Get(nil, key)
+	if err != nil {
+		rec = nil
+	}
+	return rec
 }
 
 func CheckDBConnection() {
 	util.LogMessage("Checking database connection...")
-	// Create a new client and connect to the server
-	// Ping the primary
-	dbconfig.Client.IsConnected()
+	db.Client.IsConnected()
+}
+
+func WriteMessage(w http.ResponseWriter, msg ...string) {
+	w.WriteHeader(200)
+	w.Write([]byte(strings.Join(msg, ",")))
 }

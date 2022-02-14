@@ -12,36 +12,21 @@ import (
 	"github.com/google/uuid"
 )
 
-type Dbconfig struct {
-	Environment string
-	Host        string
-	Port        string
-	Namespace   string
-	Set         string
-	Client      *as.Client
+var client *as.Client
+var db *DBAero
+
+type DBAero struct {
+	Host      string
+	Port      string
+	Namespace string
+	Set       string
+	Client    *as.Client
 }
 
-const (
-	ENVIROMENT  = "ENVIROMENT"
-	HOST        = "HOST"
-	PORT        = "PORT"
-	NAMESPACE   = "NAMESPACE"
-	SET         = "SET"
-	APIKEY      = "api_key"
-	FIRSTNAME   = "first_name"
-	LASTNAME    = "last_name"
-	COMPANY     = "company"
-	defaultEnv  = "dev"
-	defaultHost = "aerospike"
-	defaultPort = "3000"
-	defaultNS   = "test"
-	defaultSet  = "users"
-)
-
-func ConvertToJson(bins as.BinMap) []byte {
-	jsonValue, err := json.Marshal(bins)
+func ConvertToJson(bins as.BinMap) string {
+	jsonBytes, err := json.Marshal(bins)
 	PanicOnError(err)
-	return jsonValue
+	return string(jsonBytes[:])
 }
 
 func GetUUID() string {
@@ -58,28 +43,31 @@ func PanicOnError(err error) {
 	}
 }
 
-func GetConnection() *Dbconfig {
+func GetConnection() *DBAero {
 	host := GetEnv(HOST, defaultHost)
 	port := GetEnv(PORT, defaultPort)
-	client := retrieveClient(host, port)
-	dbconfig := &Dbconfig{GetEnv(ENVIROMENT, defaultEnv), host, port, GetEnv(NAMESPACE, defaultNS), GetEnv(SET, defaultSet), client}
-	return dbconfig
+	client := getClient(host, port)
+	db = &DBAero{host, port, GetEnv(NAMESPACE, defaultNS), GetEnv(SET, defaultSet), client}
+	return db
+}
+
+func getClient(host string, port string) *as.Client {
+	if client != nil && client.IsConnected() {
+		return client
+	}
+	return retrieveClient(host, port)
 }
 
 func retrieveClient(host string, port string) *as.Client {
 	errDBDown := "Database is DOWN"
 	_port, err := strconv.Atoi(port)
 	PanicOnError(err)
-	client, err := as.NewClient(host, _port)
+	_client, err := as.NewClient(host, _port)
 	if err != nil {
-		LogMessage("*******WARNING*************")
-		LogMessage(errDBDown+" for "+host+":"+port)
-		LogMessage("*******WARNING*************")
 		panic(errDBDown)
 	}
-	LogMessage("Database is UP for "+host+":"+port)
-
-	return client
+	LogMessage("Database is UP for " + host + ":" + port)
+	return _client
 }
 
 func GetEnv(key, fallback string) string {
