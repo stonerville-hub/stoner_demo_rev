@@ -1,6 +1,6 @@
-># Code Challenge - Microservice
+# Code Challenge - Microservice
 
-## `Description`
+### `Description`
 We need a new microservice to return the user data stored in Aerospike. The data resides within the "test" namespace, "users" set, and each record has a primary key integer corresponding to the user's id in RDS. Each record contains the following bins:
 * api_key    
 * first_name
@@ -10,14 +10,14 @@ We need a new microservice to return the user data stored in Aerospike. The data
 Please create a GoLang HTTP REST service with a GET *`/user/<id>`* endpoint. The request will accept a *`?api_key=<string>`* GET param and will validate the value against the Aerospike user record before returning the user record as a JSON response.
 
 This is your time to shine. Let's see all the best practices in play. A docker-compose including Aerospike, test record loading, README, etc... Publish the repository to GitHub and pass along the URL.
-## `Prerequisites`
+### `Prerequisites`
 
  1. _Docker is installed_
  2. _Docker compose is installed_
  3. _Image is run from your local machine_  
  
 
-## `Getting Started`
+### `Getting Started`
 
 1. Start application by running *`sh appUp.sh`*
 2. Go to one of these endpoints:
@@ -25,7 +25,7 @@ This is your time to shine. Let's see all the best practices in play. A docker-c
     - [Get by User ID](http://localhost:8080/user/2?api_key=249fd4fbff52414aa81a670d696bc2c9) Returns the json for the api_key
 3. Stop application by running *`sh appDown.sh`*
 
-# `Code Challenge Summary`
+## `Code Challenge Summary`
 **`Existing functionality`**
 ```
 - Loading test data
