@@ -26,6 +26,7 @@ COPY .env .
 # Copy everything from the current directory to the Working Directory inside the container
 COPY *.go .
 COPY go.* ./
+COPY *.html .
 
 # Build the Go app
 RUN go build -o /main .

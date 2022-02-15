@@ -64,14 +64,14 @@ func retrieveClient(host string, port string) *as.Client {
 	PanicOnError(err)
 	_client, err := as.NewClient(host, _port)
 	if err != nil {
-		panic(errDBDown)
+		panic(errDBDown+" for " + host + ":" + port)
 	}
 	LogMessage("Database is UP for " + host + ":" + port)
 	return _client
 }
 
 func GetEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
+	if value, ok := os.LookupEnv(key); ok && len(value)>0  {
 		return value
 	}
 	return fallback

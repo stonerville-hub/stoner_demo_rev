@@ -1,9 +1,9 @@
 package utility
 
 const (
-    HOME           = "/"
-    LOADNEWDATA    = "/loadNewData"
-    GET_USERBYID   = "/user/{id}"
+	HOME         = "/"
+	LOADNEWDATA  = "/loadNewData"
+	GET_USERBYID = "/user/{id}"
 )
 
 const (
@@ -15,15 +15,15 @@ const (
 	FIRSTNAME   = "first_name"
 	LASTNAME    = "last_name"
 	COMPANY     = "company"
-	defaultHost = "aerospike"
+	defaultHost = "0.0.0.0"
 	defaultPort = "3000"
 	defaultNS   = "test"
 	defaultSet  = "users"
 )
 
 type User struct {
-	APIKEY    string
-	FIRSTNAME string
-	LASTNAME  string
-	COMPANY   string
+	APIKEY    string `json:"api_key"`
+	COMPANY   string `json:"company"`
+	FIRSTNAME string `json:"first_name"`
+	LASTNAME  string `json:"last_name"`
 }

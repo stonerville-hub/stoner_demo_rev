@@ -1,1 +1,28 @@
-<a href="loadNewData">here</a>
+<html>
+  <head>
+    <title>Test Data for API</title>
+  </head>
+  <body>
+    <table>
+      <thead>
+        <tr style="text-align: center">
+          <td>APIKEY</td>
+          <td>First Name</td>
+          <td>Last Name</td>
+          <td>Company</td>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .}}
+        <tr>
+          <td>{{.APIKEY}}</td>
+          <td>{{.FIRSTNAME}}</td>
+          <td>{{.LASTNAME}}</td>
+          <td>{{.COMPANY}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+      <h4><a href="loadNewData">Load New Test Data</a></h4>
+    </table>
+  </body>
+</html>
