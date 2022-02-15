@@ -1,2 +1,2 @@
-echo **Excecuting command** docker-compose up -d --force-recreate --remove-orphans
-docker-compose up -d --force-recreate --remove-orphans
+echo **RUNNING**: docker-compose up -d --build --force-recreate --remove-orphans
+docker-compose up -d --build --force-recreate --remove-orphans

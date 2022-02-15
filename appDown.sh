@@ -1,2 +1,2 @@
-echo **Excecuting command** docker-compose -f 'docker-compose.yaml'  -p 'stoner_demo_rev' down
+echo **RUNNING**: docker-compose -f 'docker-compose.yaml'  -p 'stoner_demo_rev' down
 docker-compose -f 'docker-compose.yaml'  -p 'stoner_demo_rev' down

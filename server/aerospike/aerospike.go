@@ -1,6 +1,9 @@
 package aerospike
 
 import (
+	"encoding/json"
+	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 	"strings"
@@ -12,23 +15,55 @@ import (
 var db *util.DBAero = util.GetConnection()
 
 func HomePage(w http.ResponseWriter, r *http.Request) {
+	util.LogMessage("name="+db.Namespace+"| set="+db.Set)
 	recordset, err := db.Client.ScanAll(nil, db.Namespace, db.Set)
 	util.PanicOnError(err)
-	WriteMessage(w, "<h3>List of Test Record(s)</h3>")
-	WriteMessage(w, "<h3>------------------------------</h3>")
-	recordsExists := false
-	// consume recordset and check errors
+
+	fmt.Printf("recordset.Results(): %v\n", recordset.Results())
+	i := -1
+	Users := []*util.User{}
 	for rec := range recordset.Results() {
+		util.LogMessage("I'm looping")
+		i++
 		if rec.Err != nil {
 			util.PanicOnError(rec.Err)
 		}
-		WriteMessage(w, "<h4>"+util.ConvertToJson(rec.Record.Bins)+"</h4>")
-	}
 
-	if !recordsExists {
-		WriteMessage(w, "<h2>No records found.  For loading test data, click <a href="+r.RemoteAddr+">here</a></h2>")
+		x := rec.Record.Bins["record"]
+		if x !=nil {
+			recordBytes := []byte(x.(string))
+			user := &util.User{}
+			err := json.Unmarshal(recordBytes, user)
+			util.PanicOnError(err)
+			util.LogMessage(user.APIKEY)
+			Users[i] = user
+		}
 	}
+	util.LogMessage("array length="+strconv.Itoa(len(Users)))
+	t, err2 := template.ParseFiles("home.html")
+	util.PanicOnError(err2)
+	err2 = t.Execute(w, Users)
+	util.PanicOnError(err2)
 }
+
+// func HomePage(w http.ResponseWriter, r *http.Request) {
+// 	recordset, err := db.Client.ScanAll(nil, db.Namespace, db.Set)
+// 	util.PanicOnError(err)
+// 	WriteMessage(w, "<h3>List of Test Record(s)</h3>")
+// 	WriteMessage(w, "<h3>------------------------------</h3>")
+// 	recordsExists := false
+// 	// consume recordset and check errors
+// 	for rec := range recordset.Results() {
+// 		if rec.Err != nil {
+// 			util.PanicOnError(rec.Err)
+// 		}
+// 		WriteMessage(w, "<h4>"+util.ConvertToJson(rec.Record.Bins)+"</h4>")
+// 	}
+
+// 	if !recordsExists {
+// 		WriteMessage(w, "<h2>No records found.  For loading test data, click <a href="+r.RemoteAddr+">here</a></h2>")
+// 	}
+// }
 
 func LoadNewCustomers(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < 10; i++ {
@@ -67,7 +102,7 @@ func insertRecord(recnum int) as.BinMap {
 	}
 	err = db.Client.Put(nil, key, bins)
 	if err != nil {
-		util.LogMessage("Failed inserting api_key "+apikey)
+		util.LogMessage("Failed inserting api_key " + apikey)
 	}
 	return bins
 }

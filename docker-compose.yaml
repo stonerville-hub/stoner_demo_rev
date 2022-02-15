@@ -4,14 +4,13 @@ services:
   demorevcontent:
     build:
       context: .
-      # network: revcontent_network
       args: 
         - aero_host=${HOST}
         - aero_port=${PORT}
         - aero_namespace=${NAMESPACE}
         - aero_set=${SET}      
       dockerfile: Dockerfile
-    image: demorevcontent:${IMG_VERSION}
+    image: ${IMG_NAME}:${IMG_VERSION}
     environment:
       - aero_host=${HOST}
       - aero_port=${PORT}
