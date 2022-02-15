@@ -23,7 +23,7 @@ const (
 
 type User struct {
 	APIKEY    string `json:"api_key"`
-	COMPANY   string `json:"last_name"`
-	FIRSTNAME string `json:"company"`
-	LASTNAME  string `json:"first_name"`
+	COMPANY   string `json:"company"`
+	FIRSTNAME string `json:"first_name"`
+	LASTNAME  string `json:"last_name"`
 }
