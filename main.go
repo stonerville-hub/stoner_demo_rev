@@ -1,22 +1,26 @@
 package main
 
 import (
-	"net/http"
+	// auth "simple-api/controllers/v1/auth"
+	"github.com/gin-gonic/gin"
 
-	"github.com/gorilla/mux"
-
-	as "github.com/my/repo/server/aerospike"
-	util "github.com/my/repo/utility"
+	"github.com/my/repo/handler"
+	s "github.com/my/repo/server"
+	utils "github.com/my/repo/utility"
 )
+func init(){
+	s.LoadConnection()
+	s.CheckDBConnection()
+}
 
 func main() {
-	as.CheckDBConnection()
+    r := gin.Default()
+    r.LoadHTMLGlob("templates/*.html")
+	// r.Static("/css", "../templates/css")
+	r.GET(utils.HOME, handler.HomePage)
+    r.GET(utils.LOADNEWDATA, handler.LoadNewData)
+    r.GET(utils.GET_CUSTOMERBYID, handler.GetCustomerByID)
 
-    r := mux.NewRouter()
-    r.HandleFunc(util.HOME, http.HandlerFunc(as.HomePage))
-    r.HandleFunc(util.LOADNEWDATA, http.HandlerFunc(as.LoadNewCustomers))
-    r.HandleFunc(util.GET_USERBYID, http.HandlerFunc(as.GetRecordByID))
-    http.Handle(util.HOME, r)
-	http.ListenAndServe(":8080", r)
+	r.Run()
 
 }
