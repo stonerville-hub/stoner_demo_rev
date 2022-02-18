@@ -13,9 +13,11 @@ ENV PORT=${aero_port}
 ENV NAMESPACE=${aero_namespace}
 ENV SET=${aero_set}
 
+RUN go version
+
+ADD . /app
 # Set the Current Working Directory inside the container
 WORKDIR /app
-
 
 RUN mkdir /server
 RUN mkdir /utility
